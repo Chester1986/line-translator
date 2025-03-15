@@ -51,3 +51,13 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+import openai
+from tenacity import retry, wait_random_exponential, stop_after_attempt
+
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(3))
+def translate_text(text):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": text}],
+    )
+    return response["choices"][0]["message"]["content"]
